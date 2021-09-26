@@ -2,21 +2,18 @@ import React, { useState, useEffect } from "react";
 import "./index.css";
 import MaterialTable from "material-table";
 
-
 import axios from "axios";
 function Index() {
-  const [timeout, setTimeout ]= useState();
+  const [timeout, setTimeout] = useState();
 
-  const [data, setData] = useState([
-    { name: "", surname: "", email: "", phone: "", website: "" },
-  ]);
+  const [data, setData] = useState([]);
   // GET Method
 
   useEffect(() => {
     axios.get("https://jsonplaceholder.typicode.com/users").then((res) => {
       setData(res.data);
 
-      console.log(res.data);
+      console.log("sruesh");
     });
   }, []);
 
@@ -58,39 +55,38 @@ function Index() {
       });
   };
 
-  const editHnadler = (rowData, resolve,oldRow,newRow)=>{
- 
-    const updatedData = [...data];
-                updatedData[oldRow.data] = newRow;
-                setData(updatedData,data);
+  const editHandler = (newRow, resolve, reject) => {
+    console.log(newRow.id);
 
-                console.log(updatedData,data);
-                setTimeout(()=>resolve(),500)
-                alert("sucessfully edited")
-                console.log(rowData);
+    let array = data;
+    let i;
+    for (i = 0; i < data.length; i++) {
+      if (data[i].id === newRow.id) {
+        console.log("matched");
+        array[i] = newRow;
+      }
+    }
+    setData(array);
+    console.log("sridhar");
+    resolve();
 
-  }
- 
-  const deleteHandler = (
-    updatedData,
-    resolve,
-    reject,
-    newRow
-  ) => {
-    axios.delete(
-      "https://jsonplaceholder.typicode.com/posts/1")
-        .then((res) => {
-          // console.log(res);
-          setData([...data,newRow, updatedData]);
-          alert("Sucessfully deleted");
-          resolve();
-          console.log(updatedData);
-        })
-        .catch((err) => {
-          console.log(err);
-          reject();
-        })
-    
+    // const updatedData = [...data];
+    // updatedData[oldRow.data] = newRow;
+    // setData(updatedData, data);
+  };
+
+  const deleteHandler = (newRow, resolve, reject) => {
+    let i;
+
+
+    for (i = 0; i < data.length; i++) {
+      if (data[i].id === newRow.id) {
+        console.log("delete matched");
+        setData(data.slice(i));
+        resolve();
+        return
+      }
+    }
   };
 
   return (
@@ -104,23 +100,17 @@ function Index() {
                 console.log(newRow);
                 postHandler(newRow, resolve, reject);
               }),
-            onRowUpdate: (newRow, oldRow) => {
+
+            onRowUpdate: (newData, oldData) =>
               new Promise((resolve, reject) => {
-                editHnadler(newRow,oldRow, resolve, reject);
+                editHandler(newData, resolve, reject);
+              }),
 
-                
-              });
-            },
-            onRowDelete: (newRow) => {
+            onRowDelete: (newRow) =>
               new Promise((resolve, reject) => {
-                const updatedData = [...data];
-                updatedData.slice(newRow.data, 1);
-
-                console.log(updatedData);
-
                 deleteHandler(newRow, resolve, reject);
-              });
-            },
+                // console.log("s");
+              }),
           }}
           columns={columns}
           data={data}
